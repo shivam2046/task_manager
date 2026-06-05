@@ -1,8 +1,8 @@
 import TaskItem from "./TaskItem";
 
 const emptyMessages = {
-  all: { emoji: "📋", text: "No tasks yet. Add one above!" },
-  active: { emoji: "✅", text: "No active tasks. You're all caught up!" },
+  all:       { emoji: "📋", text: "No tasks yet. Add one above!" },
+  active:    { emoji: "✅", text: "No active tasks. You're all caught up!" },
   completed: { emoji: "🎯", text: "No completed tasks yet. Keep going!" },
 };
 

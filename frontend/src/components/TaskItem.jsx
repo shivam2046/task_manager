@@ -9,7 +9,7 @@ const TaskItem = ({ task, onToggle, onEdit, onDelete }) => {
   );
   const [error, setError] = useState("");
 
-  // Check if task is overdue: due date is in past and task is not complete
+  // Task is overdue if: has due date + not completed + due date is in the past
   const isOverdue =
     task.dueDate && !task.completed && new Date(task.dueDate) < new Date();
 
@@ -33,7 +33,7 @@ const TaskItem = ({ task, onToggle, onEdit, onDelete }) => {
   };
 
   const handleCancel = () => {
-    // Reset fields back to original task values
+    // Reset fields back to original task values on cancel
     setTitle(task.title);
     setDescription(task.description || "");
     setDueDate(task.dueDate ? task.dueDate.split("T")[0] : "");
@@ -103,10 +103,16 @@ const TaskItem = ({ task, onToggle, onEdit, onDelete }) => {
             </div>
           </div>
           <div className="task-actions">
-            <button onClick={() => setIsEditing(true)} className="btn-ghost btn-sm">
+            <button
+              onClick={() => setIsEditing(true)}
+              className="btn-ghost btn-sm"
+            >
               Edit
             </button>
-            <button onClick={() => onDelete(task._id)} className="btn-danger btn-sm">
+            <button
+              onClick={() => onDelete(task._id)}
+              className="btn-danger btn-sm"
+            >
               Delete
             </button>
           </div>

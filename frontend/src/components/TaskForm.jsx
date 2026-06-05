@@ -16,7 +16,7 @@ const TaskForm = ({ onAdd }) => {
 
     await onAdd(title.trim(), description.trim(), dueDate || null);
 
-    // Clear form after adding
+    // Clear form after successful add
     setTitle("");
     setDescription("");
     setDueDate("");

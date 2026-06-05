@@ -3,6 +3,11 @@ import TaskForm from "./components/TaskForm";
 import TaskList from "./components/TaskList";
 import "./App.css";
 
+// ─── Backend URL ────────────────────────────────────────────
+// Change this URL after deploying backend on Render
+const BASE_URL = "http://localhost:5000";
+// ────────────────────────────────────────────────────────────
+
 const App = () => {
   const [tasks, setTasks] = useState([]);
   const [filter, setFilter] = useState("all");
@@ -15,33 +20,38 @@ const App = () => {
     loadTasks();
   }, [filter]);
 
+  // ── Fetch all tasks ──────────────────────────────────────
   const loadTasks = async () => {
     setLoading(true);
     setError("");
     try {
       const url =
-        filter === "all" ? "/api/tasks" : `/api/tasks?status=${filter}`;
+        filter === "all"
+          ? `${BASE_URL}/api/tasks`
+          : `${BASE_URL}/api/tasks?status=${filter}`;
+
       const res = await fetch(url);
       const data = await res.json();
       setTasks(data.data);
       setSummary(data.summary);
     } catch (err) {
-      setError("Failed to load tasks.");
+      setError("Failed to load tasks. Make sure backend is running.");
     } finally {
       setLoading(false);
     }
   };
 
+  // ── Add new task ─────────────────────────────────────────
   const addTask = async (title, description, dueDate) => {
     try {
-      const res = await fetch("/api/tasks", {
+      const res = await fetch(`${BASE_URL}/api/tasks`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title, description, dueDate }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
-      // Add new task to top of list and update summary
+
       setTasks((prev) => [data.data, ...prev]);
       setSummary((prev) => ({ ...prev, active: prev.active + 1 }));
     } catch (err) {
@@ -49,15 +59,16 @@ const App = () => {
     }
   };
 
+  // ── Toggle complete / incomplete ─────────────────────────
   const toggleTask = async (task) => {
     try {
-      const res = await fetch(`/api/tasks/${task._id}/toggle`, {
+      const res = await fetch(`${BASE_URL}/api/tasks/${task._id}/toggle`, {
         method: "PATCH",
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
 
-      // Update summary count
+      // Update summary count based on new completed status
       if (data.data.completed) {
         setSummary((prev) => ({
           active: prev.active - 1,
@@ -70,7 +81,7 @@ const App = () => {
         }));
       }
 
-      // If filter is active/completed, remove task that no longer matches
+      // Remove from list if it no longer matches active filter
       if (filter !== "all") {
         setTasks((prev) => prev.filter((t) => t._id !== task._id));
       } else {
@@ -83,45 +94,40 @@ const App = () => {
     }
   };
 
+  // ── Edit a task ──────────────────────────────────────────
   const editTask = async (id, title, description, dueDate) => {
     try {
-      const res = await fetch(`/api/tasks/${id}`, {
+      const res = await fetch(`${BASE_URL}/api/tasks/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title, description, dueDate }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
-      // Replace old task with updated task in list
+
       setTasks((prev) => prev.map((t) => (t._id === id ? data.data : t)));
     } catch (err) {
       alert(err.message);
     }
   };
 
+  // ── Delete a task ────────────────────────────────────────
   const deleteTask = async (id) => {
     const confirmed = window.confirm("Delete this task? This cannot be undone.");
     if (!confirmed) return;
     try {
-      const res = await fetch(`/api/tasks/${id}`,
-        { method: "DELETE" });
+      const res = await fetch(`${BASE_URL}/api/tasks/${id}`, {
+        method: "DELETE",
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
-      // Find task to update summary correctly
+
       const task = tasks.find((t) => t._id === id);
       setTasks((prev) => prev.filter((t) => t._id !== id));
-      
-      if (task.completed) {
-        setSummary({
-          active: summary.active,
-          completed: summary.completed - 1,
-        });
-      } else {
-        setSummary({
-          active: summary.active - 1,
-          completed: summary.completed,
-        });
-      }
+      setSummary((prev) => ({
+        active: task.completed ? prev.active : prev.active - 1,
+        completed: task.completed ? prev.completed - 1 : prev.completed,
+      }));
     } catch (err) {
       alert(err.message);
     }
@@ -157,7 +163,7 @@ const App = () => {
           ))}
         </div>
 
-        {/* Error */}
+        {/* Error Banner */}
         {error && <p className="error-banner">{error}</p>}
 
         {/* Task List */}
