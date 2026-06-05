@@ -5,7 +5,7 @@ import "./App.css";
 
 // ─── Backend URL ────────────────────────────────────────────
 // Change this URL after deploying backend on Render
-const BASE_URL = "http://localhost:5000";
+const BASE_URL = "https://task-manager-backend-fa46.onrender.com";
 // ────────────────────────────────────────────────────────────
 
 const App = () => {
