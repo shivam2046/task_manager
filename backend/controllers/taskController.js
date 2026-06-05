@@ -1,4 +1,4 @@
-const Task = require("../models/Task");
+const Task = require("../models/task");
 
 // @desc    Get all tasks (sorted newest first)
 // @route   GET /api/tasks
